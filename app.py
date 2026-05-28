@@ -35,6 +35,7 @@ def cargar_archivos(ruta, listbox, progressbar):
         progressbar.update()
     
     progressbar.grid_remove()
+    disable_button(btn_renombrar)
 
 def cargar_desde_entry(event, entry_ruta, listbox):
     ruta = entry_ruta.get().strip()
@@ -60,7 +61,7 @@ def buscar_duplicados(entry_ruta, progressbar):
         messagebox.showinfo("Info", "No se han encontrado archivos duplicados")
         return
     
-    if messagebox.askyesno("Info", f"Archivos duplicados encontrados:\n{duplicados}\nEliminar?"):
+    if messagebox.askyesno("Info", f"Posibles duplicados encontrados:\n{duplicados}\nEliminar?"):
         total = len(duplicados)
         progressbar.grid()
         progressbar['maximum'] = total
@@ -79,7 +80,18 @@ def buscar_duplicados(entry_ruta, progressbar):
         messagebox.showinfo("Info", "Archivos eliminados correctamente")
         cargar_archivos(ruta, listbox, progressbar)
 
+def check_selection(boton, seleccion):
+    if len(seleccion) == 1:
+        boton["state"] = 'normal'
+    else:
+        boton["state"] = 'disabled'
 
+def disable_button(boton):
+    boton["state"] = 'disabled'
+
+def renombrar_archivo(listbox, ruta):
+    value = listbox.get(listbox.curselection())
+    print(value)
 
 root = Tk()
 root.title("Gestor de nombres")
@@ -178,10 +190,11 @@ btn_renombrar = ttk.Button(
     btn_frame,
     text='Renombrar',
     style='Custom.TButton',
-    # command=renombrar,
+    command=lambda: renombrar_archivo(listbox, entry_ruta),
     state='disabled'
 )
 btn_renombrar.pack(pady=10)
+listbox.bind('<Button-1>', lambda *args: check_selection(btn_renombrar, listbox.curselection()))
 
 btn_eliminar = ttk.Button(
     btn_frame,
